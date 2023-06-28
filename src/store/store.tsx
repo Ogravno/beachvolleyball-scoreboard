@@ -8,11 +8,13 @@ import { matchSagas } from "./match/sagas";
 import { matchesReducer } from "./matches/reducer";
 import { matchesSagas } from "./matches/sagas";
 import { createTournamentSlice } from "./tournament/reducer";
+import { tournamentReducer } from "./tournaments/reducer";
+import { tournamentSagas } from "./tournaments/sagas";
 
 export const rootReducer = combineReducers({
   match: matchReducer,
-  matches: matchesReducer,
-  tournament: createTournamentSlice.reducer,
+  // matches: matchesReducer,
+  tournament: tournamentReducer
 });
 
 const sagaMiddleware = saga();
@@ -26,7 +28,7 @@ export const store = configureStore({
 });
 
 function* rootSaga() {
-  yield all([matchSagas(), matchesSagas()]);
+  yield all([matchSagas(), matchesSagas(), tournamentSagas()]);
 }
 
 sagaMiddleware.run(rootSaga);

@@ -1,8 +1,8 @@
 import { createReducer } from "@reduxjs/toolkit"
-import { Actor, EventType, NotificationType } from "../../components/types"
+import { Actor, EventType, NotificationType, Match } from "../../components/types"
 import { evaluateScores, isSetDone, sumScores } from "../../util/evaluateScore"
 import { matchState } from "../types"
-import { addAwayTeamType, addHomeTeamType, addPointType, clearNotificationType, MatchActionTypes, showNotificationType } from "./actions"
+import { addAwayTeamType, addHomeTeamType, addPointType, clearNotificationType, MatchActionTypes, showNotificationType, getMatchFetchType, getMatchSuccessType } from "./actions"
 import { throwError } from "redux-saga-test-plan/providers"
 
 const initState = {
@@ -31,8 +31,8 @@ const initState = {
   events: [],
   sets: [
     {
-      homeTeamScore: 9,
-      awayTeamScore: 10
+      homeTeamScore: 0,
+      awayTeamScore: 0
     },
     {
       homeTeamScore: 0,
@@ -147,4 +147,16 @@ export const matchReducer = createReducer<matchState>(initState, {
         }
     }
   },
+
+  [MatchActionTypes.GET_MATCH_SUCCESS]: (state, action: getMatchSuccessType) => {
+    if (action.payload != null) {
+      return {
+        ...state,
+        ...(action.payload as object),
+      }
+    }
+    return {
+      ...state,
+    }
+  }
 })

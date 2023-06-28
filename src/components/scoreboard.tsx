@@ -28,6 +28,8 @@ import { useAppDispatch, useAppSelector } from '../store/store';
 import { LeftMarginBox, VolleyAlert, VolleyAvatar, VolleyCard, VolleyCardHeader, VolleyRowStack, VolleyStack } from "../util/styles";
 import { Actor } from './types';
 import Grid from "@mui/material/Grid"
+import { db } from '../firebase/firebase-config';
+import { doc, updateDoc, arrayUnion } from "firebase/firestore";
 
 
 
@@ -52,12 +54,40 @@ export function Scoreboard() {
   const dispatch = useAppDispatch();
   const [infoCollapse, setInfoCollapse] = useState(false);
 
-  function homePoint() {
-    dispatch(scorePoint(Actor.HomeTeam));
+  async function homePoint() {
+    // dispatch(scorePoint(Actor.HomeTeam));
+
+    const sets = match.sets.map((set, index) => {
+      if (index === match.currentSet) {
+        return {
+          ...set,
+          homeTeamScore: set.homeTeamScore + 1
+        }
+      }
+      return set
+    })
+
+    await updateDoc(doc(db, "tournaments", "1", "matches", match.matchId), {
+      sets: sets,
+    });
   }
 
-  function awayPoint() {
-    dispatch(scorePoint(Actor.AwayTeam));
+  async function awayPoint() {
+    // dispatch(scorePoint(Actor.AwayTeam));
+
+    const sets = match.sets.map((set, index) => {
+      if (index === match.currentSet) {
+        return {
+          ...set,
+          awayTeamScore: set.awayTeamScore + 1
+        }
+      }
+      return set
+    })
+
+    await updateDoc(doc(db, "tournaments", "1", "matches", match.matchId), {
+      sets: sets,
+    });
   }
 
   function homeTeamTimeout() {
@@ -128,7 +158,7 @@ export function Scoreboard() {
                   border: 6, borderRadius: '12px', borderColor: 'primary.main',
                   fontSize: 84, variant: 'button', lineHeight: 1, paddingTop: 2
                 }}>
-                  {match.sets[0].homeTeamScore}
+                  {match.sets[match.currentSet].homeTeamScore}
                 </Typography>
               </Grid>
 
@@ -147,7 +177,7 @@ export function Scoreboard() {
                   border: 6, borderRadius: '12px', borderColor: 'secondary.main',
                   fontSize: 84, variant: 'button', lineHeight: 1, paddingTop: 2,
                 }}>
-                  {match.sets[0].awayTeamScore}
+                  {match.sets[match.currentSet].awayTeamScore}
                 </Typography>
               </Grid>
               <Grid item xs={4}>
@@ -246,21 +276,13 @@ export function Scoreboard() {
         </Grid>
       </Grid>
       <Grid item xs={12}>
-        <Typography sx={{ fontSize: 18 }}>
-          09:12:42 Home team scored
-        </Typography>
-        <Typography sx={{ fontSize: 18 }}>
-          09:12:06 Home team scored
-        </Typography>
-        <Typography sx={{ fontSize: 18 }}>
-          09:11:34 Away team scored
-        </Typography>
-        <Typography sx={{ fontSize: 18, textDecoration: 'line-through' }}>
-          09:11:32 Home team scored
-        </Typography>
-        <Typography sx={{ fontSize: 18 }}>
-          09:11:02 Away team scored
-        </Typography>
+        { match.events.slice(0).reverse().map((event, index) => {
+          return (
+            <Typography key={index} sx={{ fontSize: 18 }}>
+              {`${new Date(event.timestamp.seconds * 1000).toLocaleTimeString('en-GB')} ${event.actor} ${event.eventType}`}
+            </Typography>
+          )
+        })}
       </Grid>
     </Grid>
   );

@@ -1,7 +1,10 @@
 import { PayloadAction } from '@reduxjs/toolkit';
-import { all, call, CallEffect, delay, put, PutEffect, select, SelectEffect, takeEvery, takeLatest } from 'redux-saga/effects'
-import { Actor, Team } from '../../components/types';
-import { addAwayTeam, addHomeTeam, addPoint, addTeamError, evaluateScores, MatchActionTypes, showNotification } from "./actions";
+import { all, call, CallEffect, delay, put, PutEffect, select, SelectEffect, takeEvery, takeLatest, take, cancelled } from 'redux-saga/effects'
+import { eventChannel } from 'redux-saga';
+import { Actor, Team, Match } from '../../components/types';
+import { addAwayTeam, addHomeTeam, addPoint, addTeamError, evaluateScores, MatchActionTypes, showNotification, getMatchSuccess, setMatch } from "./actions";
+import { db } from '../../firebase/firebase-config';
+import { doc, getDoc, onSnapshot } from "firebase/firestore";
 
 /*
  * Sagas intercept an action, and then dispatches API calls. When the API call resolves, it either dispatches a success action, or an error action.
@@ -64,11 +67,41 @@ export function* startStopwatchSaga(): Generator<CallEffect | SelectEffect | Put
 
 export const isTechnicalTimeout = (state: { match: { technicalTimeout: boolean; }; }) => state.match.technicalTimeout
 
+const getMatch: any = async (id: string) => {
+  const docRef = doc(db, "matches", id);
+
+  const document = await getDoc(docRef)
+
+  if (document.exists()) {
+    return document.data();
+  } else {
+    // docSnap.data() will be undefined in this case
+    console.log("No such document!");
+  }
+}
+
+function* workGetMatch(action: PayloadAction<string>): Generator<CallEffect<any> | PutEffect, void, Match> {
+    const match: Match = yield call(getMatch, action.payload);
+    yield put(getMatchSuccess(match))
+}
+
+function* updateMatch(action: PayloadAction<Match>): Generator<CallEffect<string> | PutEffect, void, string> {
+  try {
+    const match: Match = action.payload
+    yield put(setMatch(match))
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+
 
 export function* matchSagas() {
   yield all([
     takeEvery(MatchActionTypes.ADD_HOME_TEAM, setHomeTeam),
     takeEvery(MatchActionTypes.ADD_AWAY_TEAM, setAwayTeam),
     takeEvery(MatchActionTypes.POINT_SCORED, scorePoint),
+    takeEvery(MatchActionTypes.GET_MATCH_FETCH, workGetMatch),
+    takeEvery(MatchActionTypes.UPDATE_MATCH, updateMatch),
   ])
 }

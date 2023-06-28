@@ -1,5 +1,5 @@
 import { createAction } from '@reduxjs/toolkit'
-import { Actor, NotificationType, Team } from '../../components/types'
+import { Actor, NotificationType, Team, Match } from '../../components/types'
 
 // Use explicity string enums, otherwise the react-devtools struggle with identifying the action, as the
 // action type then would be numbers
@@ -19,6 +19,12 @@ export enum MatchActionTypes {
   CLEAR_NOTIFICATION = 'CLEAR_NOTIFICATION',
 
   ADD_TEAM_ERROR = 'ADD_TEAM_ERROR',
+
+  GET_MATCH_FETCH = 'GET_MATCH_FETCH',
+  GET_MATCH_SUCCESS = 'GET_MATCH_SUCCESS',
+
+  UPDATE_MATCH = 'UPDATE_MATCH',
+  SET_MATCH = 'SET_MATCH',
 }
 
 export const addHomeTeam = createAction<Team>(MatchActionTypes.ADD_HOME_TEAM)
@@ -35,6 +41,12 @@ export const evaluateScores = createAction<Actor>(MatchActionTypes.EVALUATE_SCOR
 
 export const addTeamError = createAction<Error>(MatchActionTypes.ADD_TEAM_ERROR)
 
+export const getMatchFetch = createAction<string>(MatchActionTypes.GET_MATCH_FETCH)
+export const getMatchSuccess = createAction<Match>(MatchActionTypes.GET_MATCH_SUCCESS)
+
+export const updateMatch = createAction<Match>(MatchActionTypes.UPDATE_MATCH)
+export const setMatch = createAction<Match>(MatchActionTypes.GET_MATCH_SUCCESS)
+
 export type addHomeTeamType = ReturnType<typeof addHomeTeam>
 export type addAwayTeamType =  ReturnType<typeof addAwayTeam>
 
@@ -48,3 +60,9 @@ export type clearNotificationType =  ReturnType<typeof clearNotification>
 export type evaluateScoresType =  ReturnType<typeof evaluateScores>
 
 export type addTeamErrorType = ReturnType<typeof addTeamError>
+
+export type getMatchFetchType = ReturnType<typeof getMatchFetch>
+export type getMatchSuccessType = ReturnType<typeof getMatchSuccess>
+
+export type updateMatchType = ReturnType<typeof updateMatch>
+export type setMatchType = ReturnType<typeof setMatch>

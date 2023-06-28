@@ -1,3 +1,4 @@
+import { type } from "os";
 import { Team, Event, Set, Match } from "../components/types";
 
 export type matchState = {
@@ -23,4 +24,11 @@ export type matchesState = {
   matches: Match[],
   lastUpdated: Date,
   errorMessage: Error|null,
+}
+
+export type tournamentState = {
+  tournamentId: string,
+  tournamentName: string,
+  matches: Match[],
+  teams: Team[],
 }

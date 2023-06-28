@@ -28,6 +28,13 @@ export type Match = {
   sets: Set[]
 }
 
+export type Tournament = {
+  tournamentId: string,
+  tournamentName: string,
+  matches: Match[],
+  teams: Team[],
+}
+
 export enum EventType {
   Score = "SCORE",
   Timeout = "TIMEOUT",
